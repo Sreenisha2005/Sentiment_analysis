@@ -5,10 +5,19 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Download once at start (will skip if already downloaded)
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('punkt', quiet=True)
+# Optional: add your nltk_data path here if needed, adjust accordingly
+# nltk.data.path.append(r'D:\python\Naan mudhalvan\nltk_data')
+
+def download_nltk_resources():
+    resources = ['stopwords', 'wordnet', 'punkt']
+    for res in resources:
+        try:
+            nltk.data.find(f'tokenizers/{res}' if res == 'punkt' else f'corpora/{res}')
+        except LookupError:
+            nltk.download(res, quiet=True)
+
+# Download resources once at start (if missing)
+download_nltk_resources()
 
 # Cache stopwords and lemmatizer globally
 stop_words = set(stopwords.words('english'))
@@ -26,7 +35,11 @@ def clean_text(text):
     text = text.lower()
     text = re.sub(r'http\S+|www\S+|@\w+|#\w+', '', text)
     text = re.sub(r'[^\w\s]', '', text)
-    tokens = nltk.word_tokenize(text)
+    try:
+        tokens = nltk.word_tokenize(text)
+    except LookupError:
+        st.error("NLTK punkt tokenizer data not found. Please check your NLTK installation.")
+        st.stop()
     tokens = [word for word in tokens if word not in stop_words]
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
     return ' '.join(tokens)
@@ -46,4 +59,3 @@ if user_input:
         st.success("Positive Sentiment 😊")
     else:
         st.error("Negative Sentiment 😞")
-
