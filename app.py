@@ -41,14 +41,11 @@ def clean_text(text):
     text = text.lower()
     text = re.sub(r'http\S+|www\S+|@\w+|#\w+', '', text)
     text = re.sub(r'[^\w\s]', '', text)
-    try:
-        tokens = nltk.word_tokenize(text)
-    except LookupError:
-        st.error("NLTK punkt tokenizer data not found. Please check your NLTK installation.")
-        st.stop()
+    tokens = text.split()  # simpler tokenizer, no punkt needed
     tokens = [word for word in tokens if word not in stop_words]
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
     return ' '.join(tokens)
+
 
 st.title("Social Media Sentiment Analyzer")
 st.write("Enter a tweet, and I'll predict if it's Positive or Negative!")
